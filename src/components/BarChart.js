@@ -3,13 +3,15 @@ import * as d3 from 'd3';
 
 const BarChart = () => {
   const [data, setData] = useState([]);
+  const [dataset, setDataset] = useState('temperature');
+  const [selectedCities, setSelectedCities] = useState([
+    'London', 'New York', 'Tokyo', 'Paris', 'Berlin', 'Moscow', 'Sydney', 'Mumbai', 'Shanghai', 'Cairo'
+  ]);
   const svgRef = useRef();
-
+  
   useEffect(() => {
     const apiKey = '763df8089caadc2bb3a7a2b6ec384a79';
-    const cities = ['London', 'New York', 'Tokyo', 'Paris', 'Berlin', 'Moscow', 'Sydney', 'Mumbai', 'Shanghai', 'Cairo'];
-
-    Promise.all(cities.map(city =>
+    Promise.all(selectedCities.map(city =>
       fetch(`https://api.openweathermap.org/data/2.5/weather?q=${city}&appid=${apiKey}&units=metric`)
         .then(response => {
           if (!response.ok) {
@@ -19,14 +21,16 @@ const BarChart = () => {
         })
         .then(data => ({
           name: data.name,
-          temperature: data.main.temp
+          value: dataset === 'temperature' ? data.main.temp :
+                 dataset === 'humidity' ? data.main.humidity :
+                 data.wind.speed
         }))
     )).then(results => setData(results))
       .catch(error => {
         console.error('There was a problem with the fetch operation:', error);
         setData([]);
       });
-  }, []);
+  }, [dataset, selectedCities]);
 
   useEffect(() => {
     if (data.length === 0) return;
@@ -45,7 +49,7 @@ const BarChart = () => {
       .padding(0.1);
 
     const yScale = d3.scaleLinear()
-      .domain([0, d3.max(data, d => d.temperature)])
+      .domain([0, d3.max(data, d => d.value)])
       .range([500, 0]);
 
     const tooltip = d3.select("body").append("div")
@@ -66,7 +70,7 @@ const BarChart = () => {
         tooltip.transition()
           .duration(200)
           .style('opacity', .9);
-        tooltip.html(`City: ${d.name}<br>Temperature: ${d.temperature}°C`)
+        tooltip.html(`City: ${d.name}<br>${dataset.charAt(0).toUpperCase() + dataset.slice(1)}: ${d.value}`)
           .style('left', (event.pageX + 5) + 'px')
           .style('top', (event.pageY - 28) + 'px');
         d3.select(event.currentTarget).transition().duration(200).attr('fill', 'orange');
@@ -81,8 +85,8 @@ const BarChart = () => {
     svg.selectAll('rect')
       .transition()
       .duration(800)
-      .attr('y', d => yScale(d.temperature))
-      .attr('height', d => 500 - yScale(d.temperature))
+      .attr('y', d => yScale(d.value))
+      .attr('height', d => 500 - yScale(d.value))
       .delay((d, i) => i * 100);
 
     svg.append('g')
@@ -98,24 +102,54 @@ const BarChart = () => {
       .attr("dy", ".35em")
       .attr("transform", "rotate(45)")
       .style("text-anchor", "start");
-  }, [data]);
+  }, [data, dataset]);
 
-  const handleFilterChange = (e) => {
-    const filterValue = e.target.value;
-    const filteredData = data.filter(d => d.temperature >= filterValue);
-    setData(filteredData);
+  const handleDatasetChange = (e) => {
+    setDataset(e.target.value);
+  };
+
+  const handleCityChange = (e) => {
+    const selectedOptions = Array.from(e.target.selectedOptions).map(option => option.value);
+    setSelectedCities(selectedOptions);
   };
 
   return (
     <div className="container mx-auto">
-      <div className="my-4">
-        <label className="block text-gray-700">Filter data greater than:
-          <input
-            type="number"
-            onChange={handleFilterChange}
-            className="ml-2 p-1 border border-gray-300 rounded"
-          />
-        </label>
+      <div className="my-4 flex flex-col md:flex-row justify-between items-center">
+        <div>
+          <label className="block text-gray-700">Select Dataset:
+            <select
+              value={dataset}
+              onChange={handleDatasetChange}
+              className="ml-2 p-1 border border-gray-300 rounded"
+            >
+              <option value="temperature">Temperature</option>
+              <option value="humidity">Humidity</option>
+              <option value="windSpeed">Wind Speed</option>
+            </select>
+          </label>
+        </div>
+        <div>
+          <label className="block text-gray-700">Select Cities:
+            <select
+              multiple
+              onChange={handleCityChange}
+              className="ml-2 p-1 border border-gray-300 rounded"
+              style={{ height: '100px' }}
+            >
+              <option value="London">London</option>
+              <option value="New York">New York</option>
+              <option value="Tokyo">Tokyo</option>
+              <option value="Paris">Paris</option>
+              <option value="Berlin">Berlin</option>
+              <option value="Moscow">Moscow</option>
+              <option value="Sydney">Sydney</option>
+              <option value="Mumbai">Mumbai</option>
+              <option value="Shanghai">Shanghai</option>
+              <option value="Cairo">Cairo</option>
+            </select>
+          </label>
+        </div>
       </div>
       <svg ref={svgRef}></svg>
     </div>
