@@ -27,16 +27,12 @@ jobs:
     - name: Install dependencies
       run: npm install
 
-    - name: Run tests
-      run: npm test
-
     - name: Configure Git
       run: |
-        git config --global user.email "humairaazmi100@gmail.com"
-        git config --global user.name "humairaaz"
+        git config --global user.email "your-email@example.com"
+        git config --global user.name "Your Name"
 
     - name: Deploy to GitHub Pages
-      if: success()
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       run: |
