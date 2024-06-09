@@ -4,9 +4,7 @@ import { io } from 'socket.io-client';
 
 const BarChart = ({ initialData }) => {
   const [data, setData] = useState(initialData);
-  const ref = useRef();
   const svgRef = useRef();
-  const zoomRef = useRef();
 
   useEffect(() => {
     const socket = io('http://localhost:4000'); // Replace with your WebSocket server URL
@@ -23,22 +21,10 @@ const BarChart = ({ initialData }) => {
     const svg = d3.select(svgRef.current)
       .attr('width', 500)
       .attr('height', 500)
-      .style('border', '1px solid black');
-
-    const zoom = d3.zoom()
-      .scaleExtent([1, 10])
-      .on('zoom', (event) => {
+      .style('border', '1px solid black')
+      .call(d3.zoom().on('zoom', (event) => {
         svg.attr('transform', event.transform);
-      });
-
-    svg.call(zoom);
-
-    zoomRef.current = zoom;
-  }, []);
-
-  useEffect(() => {
-    const svg = d3.select(svgRef.current);
-    svg.selectAll('*').remove();
+      }));
 
     const xScale = d3.scaleBand()
       .domain(data.map((d, i) => i))
@@ -76,7 +62,7 @@ const BarChart = ({ initialData }) => {
   return (
     <div>
       <div>
-        <label>Filter data greater than: 
+        <label>Filter data greater than:
           <input type="number" onChange={handleFilterChange} />
         </label>
       </div>
