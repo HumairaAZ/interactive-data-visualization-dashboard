@@ -4,13 +4,11 @@ import debounce from 'lodash.debounce';
 
 const BarChart = () => {
   const [data, setData] = useState([]);
-  const [dataset, setDataset] = useState('temperature');
-  const [selectedCities, setSelectedCities] = useState([
-    'London', 'New York', 'Tokyo', 'Paris', 'Berlin', 'Moscow', 'Sydney', 'Mumbai', 'Shanghai', 'Cairo'
-  ]);
+  const dataset = 'temperature';
+  const cities = ['London', 'New York', 'Tokyo', 'Paris', 'Berlin', 'Moscow', 'Sydney', 'Mumbai', 'Shanghai', 'Cairo'];
   const svgRef = useRef();
 
-  const fetchWeatherData = useCallback(debounce(async (cities) => {
+  const fetchWeatherData = useCallback(debounce(async () => {
     const apiKey = '763df8089caadc2bb3a7a2b6ec384a79'; // Replace with your OpenWeatherMap API key
     try {
       const results = await Promise.all(cities.map(city =>
@@ -27,12 +25,12 @@ const BarChart = () => {
     } catch (error) {
       console.error('There was a problem with the fetch operation:', error);
     }
-  }, 300), [dataset]);
+  }, 300), []);
 
   useEffect(() => {
-    setData([]); // Reset data when dataset or cities change
-    fetchWeatherData(selectedCities);
-  }, [dataset, selectedCities, fetchWeatherData]);
+    setData([]); // Reset data when cities change
+    fetchWeatherData();
+  }, [fetchWeatherData]);
 
   useEffect(() => {
     if (data.length === 0) return;
@@ -104,53 +102,10 @@ const BarChart = () => {
       .attr("dy", ".35em")
       .attr("transform", "rotate(45)")
       .style("text-anchor", "start");
-  }, [data, dataset]);
-
-  const handleDatasetChange = (e) => {
-    setDataset(e.target.value);
-  };
-
-  const handleCityChange = (e) => {
-    const selectedOptions = Array.from(e.target.selectedOptions).map(option => option.value);
-    setSelectedCities(selectedOptions);
-  };
+  }, [data]);
 
   return (
     <div className="container mx-auto p-4">
-      <div className="my-4 grid grid-cols-1 md:grid-cols-2 gap-4">
-        <div>
-          <label className="block text-gray-700 mb-2">Select Dataset:</label>
-          <select
-            value={dataset}
-            onChange={handleDatasetChange}
-            className="w-full p-2 border border-gray-300 rounded"
-          >
-            <option value="temperature">Temperature</option>
-            <option value="humidity">Humidity</option>
-            <option value="windSpeed">Wind Speed</option>
-          </select>
-        </div>
-        <div>
-          <label className="block text-gray-700 mb-2">Select Cities:</label>
-          <select
-            multiple
-            onChange={handleCityChange}
-            className="w-full p-2 border border-gray-300 rounded"
-            style={{ height: '150px' }}
-          >
-            <option value="London">London</option>
-            <option value="New York">New York</option>
-            <option value="Tokyo">Tokyo</option>
-            <option value="Paris">Paris</option>
-            <option value="Berlin">Berlin</option>
-            <option value="Moscow">Moscow</option>
-            <option value="Sydney">Sydney</option>
-            <option value="Mumbai">Mumbai</option>
-            <option value="Shanghai">Shanghai</option>
-            <option value="Cairo">Cairo</option>
-          </select>
-        </div>
-      </div>
       <svg ref={svgRef} className="w-full"></svg>
     </div>
   );
