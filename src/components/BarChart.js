@@ -6,7 +6,7 @@ const BarChart = () => {
   const svgRef = useRef();
 
   useEffect(() => {
-    const apiKey = 'YOUR_OPENWEATHERMAP_API_KEY'; // Replace with your OpenWeatherMap API key
+    const apiKey = '763df8089caadc2bb3a7a2b6ec384a79 ';
     const cities = ['London', 'New York', 'Tokyo', 'Paris', 'Berlin', 'Moscow', 'Sydney', 'Mumbai', 'Shanghai', 'Cairo'];
 
     Promise.all(cities.map(city =>
