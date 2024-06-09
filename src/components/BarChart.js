@@ -34,7 +34,7 @@ const BarChart = () => {
     const svg = d3.select(svgRef.current)
       .attr('width', 800)
       .attr('height', 500)
-      .style('border', '1px solid black')
+      .classed('border border-gray-300', true)
       .call(d3.zoom().on('zoom', (event) => {
         svg.attr('transform', event.transform);
       }));
@@ -48,16 +48,10 @@ const BarChart = () => {
       .domain([0, d3.max(data, d => d.temperature)])
       .range([500, 0]);
 
-    // Tooltip div
     const tooltip = d3.select("body").append("div")
-      .attr("class", "tooltip")
+      .attr("class", "tooltip bg-white border border-gray-400 rounded p-2 shadow-lg")
       .style("opacity", 0)
-      .style("position", "absolute")
-      .style("background-color", "white")
-      .style("border", "solid")
-      .style("border-width", "1px")
-      .style("border-radius", "5px")
-      .style("padding", "10px");
+      .style("position", "absolute");
 
     svg.selectAll('rect')
       .data(data)
@@ -113,10 +107,14 @@ const BarChart = () => {
   };
 
   return (
-    <div>
-      <div>
-        <label>Filter data greater than:
-          <input type="number" onChange={handleFilterChange} />
+    <div className="container mx-auto">
+      <div className="my-4">
+        <label className="block text-gray-700">Filter data greater than:
+          <input
+            type="number"
+            onChange={handleFilterChange}
+            className="ml-2 p-1 border border-gray-300 rounded"
+          />
         </label>
       </div>
       <svg ref={svgRef}></svg>
