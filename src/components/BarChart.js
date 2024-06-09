@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef, useState, useCallback } from 'react';
 import * as d3 from 'd3';
 import debounce from 'lodash.debounce';
 
@@ -13,9 +13,8 @@ const BarChart = () => {
   const pageSize = 5;
 
   const fetchWeatherData = useCallback(debounce(async (cities) => {
-
-    const apiKey = '763df8089caadc2bb3a7a2b6ec384a79';
-   try {
+    const apiKey = '763df8089caadc2bb3a7a2b6ec384a79'; 
+    try {
       const results = await Promise.all(cities.map(city =>
         fetch(`https://api.openweathermap.org/data/2.5/weather?q=${city}&appid=${apiKey}&units=metric`)
           .then(response => response.json())
