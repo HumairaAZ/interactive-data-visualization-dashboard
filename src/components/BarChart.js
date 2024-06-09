@@ -6,17 +6,26 @@ const BarChart = () => {
   const svgRef = useRef();
 
   useEffect(() => {
-    const apiKey = '763df8089caadc2bb3a7a2b6ec384a79'; 
+    const apiKey = 'YOUR_OPENWEATHERMAP_API_KEY'; // Replace with your OpenWeatherMap API key
     const cities = ['London', 'New York', 'Tokyo', 'Paris', 'Berlin', 'Moscow', 'Sydney', 'Mumbai', 'Shanghai', 'Cairo'];
 
     Promise.all(cities.map(city =>
-      fetch(`https://api.openweathermap.org/data/2.5/weather?q=${city}&appid=${apiKey}`)
-        .then(response => response.json())
+      fetch(`https://api.openweathermap.org/data/2.5/weather?q=${city}&appid=${apiKey}&units=metric`)
+        .then(response => {
+          if (!response.ok) {
+            throw new Error('Network response was not ok');
+          }
+          return response.json();
+        })
         .then(data => ({
           name: data.name,
           temperature: data.main.temp
         }))
-    )).then(results => setData(results));
+    )).then(results => setData(results))
+      .catch(error => {
+        console.error('There was a problem with the fetch operation:', error);
+        setData([]);
+      });
   }, []);
 
   useEffect(() => {
@@ -47,7 +56,15 @@ const BarChart = () => {
       .attr('y', d => yScale(d.temperature))
       .attr('width', xScale.bandwidth())
       .attr('height', d => 500 - yScale(d.temperature))
-      .attr('fill', 'blue');
+      .attr('fill', 'blue')
+      .on('mouseover', (event, d) => {
+        d3.select(event.currentTarget)
+          .attr('fill', 'orange');
+      })
+      .on('mouseout', (event, d) => {
+        d3.select(event.currentTarget)
+          .attr('fill', 'blue');
+      });
 
     svg.append('g')
       .attr('transform', 'translate(0,0)')
