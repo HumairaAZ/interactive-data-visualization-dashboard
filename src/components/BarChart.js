@@ -79,8 +79,8 @@ const BarChart = () => {
           .duration(200)
           .style('opacity', .9);
         tooltip.html(`City: ${d.name}<br>${dataset.charAt(0).toUpperCase() + dataset.slice(1)}: ${d.value}`)
-          .style('left', (event.pageX + 5) + 'px')
-          .style('top', (event.pageY - 28) + 'px');
+          .style('left', `${Math.min(event.pageX + 10, window.innerWidth - 150)}px`)
+          .style('top', `${event.pageY - 28}px`);
         d3.select(event.currentTarget).transition().duration(200).attr('fill', '#ffed4a');
       })
       .on('mouseout', (event, d) => {
