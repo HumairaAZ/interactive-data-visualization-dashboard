@@ -10,7 +10,7 @@ const BarChart = () => {
 
   const fetchWeatherData = useCallback(debounce(async () => {
     const apiKey = '763df8089caadc2bb3a7a2b6ec384a79'; // Replace with your OpenWeatherMap API key
-    try {
+   try {
       const results = await Promise.all(cities.map(city =>
         fetch(`https://api.openweathermap.org/data/2.5/weather?q=${city}&appid=${apiKey}&units=metric`)
           .then(response => response.json())
@@ -37,6 +37,7 @@ const BarChart = () => {
 
     const width = svgRef.current.clientWidth;
     const height = 500;
+    const barWidth = Math.max(50, width / data.length);
 
     const svg = d3.select(svgRef.current)
       .attr('width', width)
@@ -66,7 +67,7 @@ const BarChart = () => {
       .append('rect')
       .attr('x', d => xScale(d.name))
       .attr('y', d => yScale(0))
-      .attr('width', xScale.bandwidth())
+      .attr('width', barWidth)
       .attr('height', 0)
       .attr('fill', 'url(#gradient)')
       .attr('stroke', '#2d3748')
