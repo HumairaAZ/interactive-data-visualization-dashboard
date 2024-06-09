@@ -30,6 +30,11 @@ jobs:
     - name: Run tests
       run: npm test
 
+    - name: Configure Git
+      run: |
+        git config --global user.email "you@example.com"
+        git config --global user.name "Your Name"
+
     - name: Deploy to GitHub Pages
       if: success()
       run: npm run deploy
