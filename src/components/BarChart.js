@@ -116,41 +116,39 @@ const BarChart = () => {
   };
 
   return (
-    <div className="container mx-auto">
-      <div className="my-4 flex flex-col md:flex-row justify-between items-center">
+    <div className="container mx-auto p-4">
+      <div className="my-4 grid grid-cols-1 md:grid-cols-2 gap-4">
         <div>
-          <label className="block text-gray-700">Select Dataset:
-            <select
-              value={dataset}
-              onChange={handleDatasetChange}
-              className="ml-2 p-1 border border-gray-300 rounded"
-            >
-              <option value="temperature">Temperature</option>
-              <option value="humidity">Humidity</option>
-              <option value="windSpeed">Wind Speed</option>
-            </select>
-          </label>
+          <label className="block text-gray-700 mb-2">Select Dataset:</label>
+          <select
+            value={dataset}
+            onChange={handleDatasetChange}
+            className="w-full p-2 border border-gray-300 rounded"
+          >
+            <option value="temperature">Temperature</option>
+            <option value="humidity">Humidity</option>
+            <option value="windSpeed">Wind Speed</option>
+          </select>
         </div>
         <div>
-          <label className="block text-gray-700">Select Cities:
-            <select
-              multiple
-              onChange={handleCityChange}
-              className="ml-2 p-1 border border-gray-300 rounded"
-              style={{ height: '100px' }}
-            >
-              <option value="London">London</option>
-              <option value="New York">New York</option>
-              <option value="Tokyo">Tokyo</option>
-              <option value="Paris">Paris</option>
-              <option value="Berlin">Berlin</option>
-              <option value="Moscow">Moscow</option>
-              <option value="Sydney">Sydney</option>
-              <option value="Mumbai">Mumbai</option>
-              <option value="Shanghai">Shanghai</option>
-              <option value="Cairo">Cairo</option>
-            </select>
-          </label>
+          <label className="block text-gray-700 mb-2">Select Cities:</label>
+          <select
+            multiple
+            onChange={handleCityChange}
+            className="w-full p-2 border border-gray-300 rounded"
+            style={{ height: '150px' }}
+          >
+            <option value="London">London</option>
+            <option value="New York">New York</option>
+            <option value="Tokyo">Tokyo</option>
+            <option value="Paris">Paris</option>
+            <option value="Berlin">Berlin</option>
+            <option value="Moscow">Moscow</option>
+            <option value="Sydney">Sydney</option>
+            <option value="Mumbai">Mumbai</option>
+            <option value="Shanghai">Shanghai</option>
+            <option value="Cairo">Cairo</option>
+          </select>
         </div>
       </div>
       <svg ref={svgRef}></svg>
