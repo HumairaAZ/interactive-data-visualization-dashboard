@@ -8,10 +8,9 @@ const BarChart = () => {
   const dataset = 'temperature';
   const cities = ['London', 'New York', 'Tokyo', 'Paris', 'Berlin', 'Moscow', 'Sydney', 'Mumbai', 'Shanghai', 'Cairo', 'Dubai', 'Beijing', 'Los Angeles', 'Chicago', 'Houston', 'Toronto', 'Rome', 'Madrid', 'Barcelona', 'Vienna'];
   const svgRef = useRef();
-  const updateInterval = 60000; // 1 minute
 
   const fetchWeatherData = useCallback(debounce(async () => {
-    const apiKey = '763df8089caadc2bb3a7a2b6ec384a79'; // Replace with your OpenWeatherMap API key
+    const apiKey = 'YOUR_OPENWEATHERMAP_API_KEY'; // Replace with your OpenWeatherMap API key
     setLoading(true);
     try {
       const results = await Promise.all(cities.map(city =>
@@ -35,12 +34,6 @@ const BarChart = () => {
   useEffect(() => {
     setData([]); // Reset data when cities change
     fetchWeatherData();
-
-    const interval = setInterval(() => {
-      fetchWeatherData();
-    }, updateInterval);
-
-    return () => clearInterval(interval); // Cleanup on unmount
   }, [fetchWeatherData]);
 
   useEffect(() => {
