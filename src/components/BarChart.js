@@ -11,7 +11,7 @@ const BarChart = () => {
   const svgRef = useRef();
 
   const fetchWeatherData = useCallback(debounce(async (cities) => {
-    const apiKey = '763df8089caadc2bb3a7a2b6ec384a79'; // Replace with your OpenWeatherMap API key
+    const apiKey = 'YOUR_OPENWEATHERMAP_API_KEY'; // Replace with your OpenWeatherMap API key
     try {
       const results = await Promise.all(cities.map(city =>
         fetch(`https://api.openweathermap.org/data/2.5/weather?q=${city}&appid=${apiKey}&units=metric`)
@@ -55,7 +55,7 @@ const BarChart = () => {
       .range([500, 0]);
 
     const tooltip = d3.select("body").append("div")
-      .attr("class", "tooltip bg-white border border-gray-400 rounded p-2 shadow-lg")
+      .attr("class", "tooltip")
       .style("opacity", 0)
       .style("position", "absolute");
 
@@ -67,7 +67,7 @@ const BarChart = () => {
       .attr('y', d => yScale(0))
       .attr('width', xScale.bandwidth())
       .attr('height', 0)
-      .attr('fill', 'blue')
+      .attr('fill', '#3490dc')
       .on('mouseover', (event, d) => {
         tooltip.transition()
           .duration(200)
@@ -75,13 +75,13 @@ const BarChart = () => {
         tooltip.html(`City: ${d.name}<br>${dataset.charAt(0).toUpperCase() + dataset.slice(1)}: ${d.value}`)
           .style('left', (event.pageX + 5) + 'px')
           .style('top', (event.pageY - 28) + 'px');
-        d3.select(event.currentTarget).transition().duration(200).attr('fill', 'orange');
+        d3.select(event.currentTarget).transition().duration(200).attr('fill', '#ffed4a');
       })
       .on('mouseout', (event, d) => {
         tooltip.transition()
           .duration(500)
           .style('opacity', 0);
-        d3.select(event.currentTarget).transition().duration(500).attr('fill', 'blue');
+        d3.select(event.currentTarget).transition().duration(500).attr('fill', '#3490dc');
       });
 
     svg.selectAll('rect')
