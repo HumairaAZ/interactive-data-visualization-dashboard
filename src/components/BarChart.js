@@ -12,7 +12,7 @@ const BarChart = () => {
   const svgRef = useRef();
 
   const fetchWeatherData = useCallback(async () => {
-    const apiKey = '763df8089caadc2bb3a7a2b6ec384a79'; 
+    const apiKey = '763df8089caadc2bb3a7a2b6ec384a79'; // Replace with your OpenWeatherMap API key
     setLoading(true);
     try {
       const results = await Promise.all(selectedCities.map(city =>
@@ -67,9 +67,9 @@ const BarChart = () => {
       .enter()
       .append('rect')
       .attr('x', d => xScale(d.name))
-      .attr('y', d => yScale(0))
+      .attr('y', d => yScale(d.value))
       .attr('width', xScale.bandwidth())
-      .attr('height', 0)
+      .attr('height', d => 500 - yScale(d.value))
       .attr('fill', 'blue')
       .on('mouseover', (event, d) => {
         tooltip.transition()
@@ -86,13 +86,6 @@ const BarChart = () => {
           .style('opacity', 0);
         d3.select(event.currentTarget).transition().duration(500).attr('fill', 'blue');
       });
-
-    svg.selectAll('rect')
-      .transition()
-      .duration(800)
-      .attr('y', d => yScale(d.value))
-      .attr('height', d => 500 - yScale(d.value))
-      .delay((d, i) => i * 100);
 
     svg.selectAll('g').remove();
 
