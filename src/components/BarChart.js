@@ -12,7 +12,7 @@ const BarChart = () => {
   const svgRef = useRef();
 
   const fetchWeatherData = useCallback(async () => {
-    const apiKey = '763df8089caadc2bb3a7a2b6ec384a79'; // Replace with your OpenWeatherMap API key
+    const apiKey = 'YOUR_OPENWEATHERMAP_API_KEY'; // Replace with your OpenWeatherMap API key
     setLoading(true);
     try {
       const results = await Promise.all(selectedCities.map(city =>
