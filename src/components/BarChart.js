@@ -1,6 +1,7 @@
 import React, { useEffect, useRef, useState, useCallback } from 'react';
 import * as d3 from 'd3';
 import debounce from 'lodash.debounce';
+import Loading from 'react-loading';
 
 const BarChart = () => {
   const [data, setData] = useState([]);
@@ -9,11 +10,13 @@ const BarChart = () => {
     'London', 'New York', 'Tokyo', 'Paris', 'Berlin', 'Moscow', 'Sydney', 'Mumbai', 'Shanghai', 'Cairo'
   ]);
   const [page, setPage] = useState(1);
+  const [loading, setLoading] = useState(false);
   const svgRef = useRef();
   const pageSize = 5;
 
   const fetchWeatherData = useCallback(debounce(async (cities) => {
-    const apiKey = '763df8089caadc2bb3a7a2b6ec384a79'; 
+    const apiKey = '763df8089caadc2bb3a7a2b6ec384a79'; // Replace with your OpenWeatherMap API key
+    setLoading(true);
     try {
       const results = await Promise.all(cities.map(city =>
         fetch(`https://api.openweathermap.org/data/2.5/weather?q=${city}&appid=${apiKey}&units=metric`)
@@ -28,6 +31,9 @@ const BarChart = () => {
       setData(prevData => [...prevData, ...results]);
     } catch (error) {
       console.error('There was a problem with the fetch operation:', error);
+      alert('Failed to fetch data. Please try again later.');
+    } finally {
+      setLoading(false);
     }
   }, 300), [dataset]);
 
@@ -163,7 +169,13 @@ const BarChart = () => {
           </label>
         </div>
       </div>
-      <svg ref={svgRef}></svg>
+      {loading ? (
+        <div className="flex justify-center items-center">
+          <Loading type="bubbles" color="#00BFFF" height={100} width={100} />
+        </div>
+      ) : (
+        <svg ref={svgRef}></svg>
+      )}
       <button
         onClick={loadMoreData}
         className="mt-4 p-2 bg-blue-500 text-white rounded hover:bg-blue-700"
