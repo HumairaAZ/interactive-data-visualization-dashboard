@@ -5,7 +5,7 @@ import debounce from 'lodash.debounce';
 const BarChart = () => {
   const [data, setData] = useState([]);
   const dataset = 'temperature';
-  const cities = ['London', 'New York', 'Tokyo', 'Paris', 'Berlin', 'Moscow', 'Sydney', 'Mumbai', 'Shanghai', 'Cairo'];
+  const cities = ['London', 'New York', 'Tokyo', 'Paris', 'Berlin', 'Moscow', 'Sydney', 'Mumbai', 'Shanghai', 'Cairo', 'Dubai', 'Beijing', 'Los Angeles', 'Chicago', 'Houston', 'Toronto', 'Rome', 'Madrid', 'Barcelona', 'Vienna'];
   const svgRef = useRef();
 
   const fetchWeatherData = useCallback(debounce(async () => {
@@ -35,9 +35,12 @@ const BarChart = () => {
   useEffect(() => {
     if (data.length === 0) return;
 
+    const width = svgRef.current.clientWidth;
+    const height = 500;
+
     const svg = d3.select(svgRef.current)
-      .attr('width', '100%')
-      .attr('height', '500')
+      .attr('width', width)
+      .attr('height', height)
       .classed('border border-gray-300', true)
       .call(d3.zoom().on('zoom', (event) => {
         svg.attr('transform', event.transform);
@@ -45,12 +48,12 @@ const BarChart = () => {
 
     const xScale = d3.scaleBand()
       .domain(data.map(d => d.name))
-      .range([0, 800])
+      .range([0, width])
       .padding(0.1);
 
     const yScale = d3.scaleLinear()
       .domain([0, d3.max(data, d => d.value)])
-      .range([500, 0]);
+      .range([height, 0]);
 
     const tooltip = d3.select("body").append("div")
       .attr("class", "tooltip")
@@ -86,7 +89,7 @@ const BarChart = () => {
       .transition()
       .duration(800)
       .attr('y', d => yScale(d.value))
-      .attr('height', d => 500 - yScale(d.value))
+      .attr('height', d => height - yScale(d.value))
       .delay((d, i) => i * 100);
 
     svg.append('g')
@@ -94,7 +97,7 @@ const BarChart = () => {
       .call(d3.axisLeft(yScale));
 
     svg.append('g')
-      .attr('transform', 'translate(0,500)')
+      .attr('transform', `translate(0,${height})`)
       .call(d3.axisBottom(xScale))
       .selectAll("text")
       .attr("y", 0)
