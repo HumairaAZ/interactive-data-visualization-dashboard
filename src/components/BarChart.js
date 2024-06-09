@@ -59,4 +59,26 @@ const BarChart = () => {
       .attr("y", 0)
       .attr("x", 9)
       .attr("dy", ".35em")
-      .attr(
+      .attr("transform", "rotate(45)")
+      .style("text-anchor", "start");
+  }, [data]);
+
+  const handleFilterChange = (e) => {
+    const filterValue = e.target.value;
+    const filteredData = data.filter(d => d.totalCases >= filterValue);
+    setData(filteredData);
+  };
+
+  return (
+    <div>
+      <div>
+        <label>Filter data greater than:
+          <input type="number" onChange={handleFilterChange} />
+        </label>
+      </div>
+      <svg ref={svgRef}></svg>
+    </div>
+  );
+};
+
+export default BarChart;
