@@ -1,6 +1,5 @@
 import React, { useEffect, useRef, useState, useCallback } from 'react';
 import * as d3 from 'd3';
-import debounce from 'lodash.debounce';
 import Loading from 'react-loading';
 
 const BarChart = () => {
@@ -12,8 +11,8 @@ const BarChart = () => {
   const [loading, setLoading] = useState(false);
   const svgRef = useRef();
 
-  const fetchWeatherData = useCallback(debounce(async () => {
-    const apiKey = '763df8089caadc2bb3a7a2b6ec384a79';
+  const fetchWeatherData = useCallback(async () => {
+    const apiKey = '763df8089caadc2bb3a7a2b6ec384a79'; 
     setLoading(true);
     try {
       const results = await Promise.all(selectedCities.map(city =>
@@ -33,7 +32,7 @@ const BarChart = () => {
     } finally {
       setLoading(false);
     }
-  }, 300), [dataset, selectedCities]);
+  }, [dataset, selectedCities]);
 
   useEffect(() => {
     fetchWeatherData();
@@ -45,10 +44,7 @@ const BarChart = () => {
     const svg = d3.select(svgRef.current)
       .attr('width', 800)
       .attr('height', 500)
-      .classed('border border-gray-300', true)
-      .call(d3.zoom().on('zoom', (event) => {
-        svg.attr('transform', event.transform);
-      }));
+      .classed('border border-gray-300', true);
 
     const xScale = d3.scaleBand()
       .domain(data.map(d => d.name))
@@ -63,6 +59,8 @@ const BarChart = () => {
       .attr("class", "tooltip bg-white border border-gray-400 rounded p-2 shadow-lg")
       .style("opacity", 0)
       .style("position", "absolute");
+
+    svg.selectAll('rect').remove();
 
     svg.selectAll('rect')
       .data(data)
@@ -95,6 +93,8 @@ const BarChart = () => {
       .attr('y', d => yScale(d.value))
       .attr('height', d => 500 - yScale(d.value))
       .delay((d, i) => i * 100);
+
+    svg.selectAll('g').remove();
 
     svg.append('g')
       .attr('transform', 'translate(0,0)')
