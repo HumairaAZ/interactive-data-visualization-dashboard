@@ -68,7 +68,12 @@ const BarChart = () => {
       .attr('y', d => yScale(0))
       .attr('width', xScale.bandwidth())
       .attr('height', 0)
-      .attr('fill', '#3490dc')
+      .attr('fill', 'url(#gradient)')
+      .attr('stroke', '#2d3748')
+      .attr('stroke-width', 1)
+      .attr('rx', 4)
+      .attr('ry', 4)
+      .attr('class', 'shadow-md')
       .on('mouseover', (event, d) => {
         tooltip.transition()
           .duration(200)
@@ -82,7 +87,7 @@ const BarChart = () => {
         tooltip.transition()
           .duration(500)
           .style('opacity', 0);
-        d3.select(event.currentTarget).transition().duration(500).attr('fill', '#3490dc');
+        d3.select(event.currentTarget).transition().duration(500).attr('fill', 'url(#gradient)');
       });
 
     svg.selectAll('rect')
@@ -105,6 +110,26 @@ const BarChart = () => {
       .attr("dy", ".35em")
       .attr("transform", "rotate(45)")
       .style("text-anchor", "start");
+
+    // Append gradient definition
+    const defs = svg.append("defs");
+    const gradient = defs.append("linearGradient")
+      .attr("id", "gradient")
+      .attr("x1", "0%")
+      .attr("y1", "0%")
+      .attr("x2", "0%")
+      .attr("y2", "100%");
+    
+    gradient.append("stop")
+      .attr("offset", "0%")
+      .attr("stop-color", "#3490dc")
+      .attr("stop-opacity", 1);
+    
+    gradient.append("stop")
+      .attr("offset", "100%")
+      .attr("stop-color", "#6574cd")
+      .attr("stop-opacity", 1);
+
   }, [data]);
 
   return (
