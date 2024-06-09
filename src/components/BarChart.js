@@ -6,16 +6,17 @@ const BarChart = () => {
   const svgRef = useRef();
 
   useEffect(() => {
-    // Fetch data from COVID-19 API
-    fetch('https://api.covid19api.com/summary')
-      .then(response => response.json())
-      .then(data => {
-        const countriesData = data.Countries.map(country => ({
-          name: country.Country,
-          totalCases: country.TotalConfirmed
-        })).slice(0, 10); // Taking top 10 countries for simplicity
-        setData(countriesData);
-      });
+    const apiKey = '763df8089caadc2bb3a7a2b6ec384a79'; 
+    const cities = ['London', 'New York', 'Tokyo', 'Paris', 'Berlin', 'Moscow', 'Sydney', 'Mumbai', 'Shanghai', 'Cairo'];
+
+    Promise.all(cities.map(city =>
+      fetch(`https://api.openweathermap.org/data/2.5/weather?q=${city}&appid=${apiKey}`)
+        .then(response => response.json())
+        .then(data => ({
+          name: data.name,
+          temperature: data.main.temp
+        }))
+    )).then(results => setData(results));
   }, []);
 
   useEffect(() => {
@@ -35,7 +36,7 @@ const BarChart = () => {
       .padding(0.1);
 
     const yScale = d3.scaleLinear()
-      .domain([0, d3.max(data, d => d.totalCases)])
+      .domain([0, d3.max(data, d => d.temperature)])
       .range([500, 0]);
 
     svg.selectAll('rect')
@@ -43,9 +44,9 @@ const BarChart = () => {
       .enter()
       .append('rect')
       .attr('x', d => xScale(d.name))
-      .attr('y', d => yScale(d.totalCases))
+      .attr('y', d => yScale(d.temperature))
       .attr('width', xScale.bandwidth())
-      .attr('height', d => 500 - yScale(d.totalCases))
+      .attr('height', d => 500 - yScale(d.temperature))
       .attr('fill', 'blue');
 
     svg.append('g')
@@ -65,7 +66,7 @@ const BarChart = () => {
 
   const handleFilterChange = (e) => {
     const filterValue = e.target.value;
-    const filteredData = data.filter(d => d.totalCases >= filterValue);
+    const filteredData = data.filter(d => d.temperature >= filterValue);
     setData(filteredData);
   };
 
