@@ -13,3 +13,17 @@ body {
   padding: 1rem;
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
 }
+
+.loader {
+  border-top-color: #3490dc;
+  animation: spin 1s ease-in-out infinite;
+}
+
+@keyframes spin {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
