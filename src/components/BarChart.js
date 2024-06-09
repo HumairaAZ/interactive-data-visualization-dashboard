@@ -4,14 +4,12 @@ import debounce from 'lodash.debounce';
 
 const BarChart = () => {
   const [data, setData] = useState([]);
-  const [loading, setLoading] = useState(true);
   const dataset = 'temperature';
-  const cities = ['London', 'New York', 'Tokyo', 'Paris', 'Berlin', 'Moscow', 'Sydney', 'Mumbai', 'Shanghai', 'Cairo', 'Dubai', 'Beijing', 'Los Angeles', 'Chicago', 'Houston', 'Toronto', 'Rome', 'Madrid', 'Barcelona', 'Vienna'];
+  const cities = ['London', 'New York', 'Tokyo', 'Paris', 'Berlin', 'Moscow', 'Sydney', 'Mumbai', 'Shanghai', 'Cairo'];
   const svgRef = useRef();
 
   const fetchWeatherData = useCallback(debounce(async () => {
     const apiKey = '763df8089caadc2bb3a7a2b6ec384a79'; // Replace with your OpenWeatherMap API key
-    setLoading(true);
     try {
       const results = await Promise.all(cities.map(city =>
         fetch(`https://api.openweathermap.org/data/2.5/weather?q=${city}&appid=${apiKey}&units=metric`)
@@ -26,8 +24,6 @@ const BarChart = () => {
       setData(results);
     } catch (error) {
       console.error('There was a problem with the fetch operation:', error);
-    } finally {
-      setLoading(false);
     }
   }, 300), []);
 
@@ -39,7 +35,7 @@ const BarChart = () => {
   useEffect(() => {
     if (data.length === 0) return;
 
-    const width = svgRef.current ? svgRef.current.clientWidth : 800;
+    const width = svgRef.current.clientWidth;
     const height = 500;
 
     const svg = d3.select(svgRef.current)
@@ -138,12 +134,7 @@ const BarChart = () => {
 
   return (
     <div className="container mx-auto p-4">
-      {loading && (
-        <div className="flex items-center justify-center h-64">
-          <div className="loader ease-linear rounded-full border-4 border-t-4 border-gray-200 h-12 w-12"></div>
-        </div>
-      )}
-      {!loading && <svg ref={svgRef} className="w-full"></svg>}
+      <svg ref={svgRef} className="w-full"></svg>
     </div>
   );
 };
