@@ -8,6 +8,7 @@ const BarChart = () => {
   const dataset = 'temperature';
   const cities = ['London', 'New York', 'Tokyo', 'Paris', 'Berlin', 'Moscow', 'Sydney', 'Mumbai', 'Shanghai', 'Cairo', 'Dubai', 'Beijing', 'Los Angeles', 'Chicago', 'Houston', 'Toronto', 'Rome', 'Madrid', 'Barcelona', 'Vienna'];
   const svgRef = useRef();
+  const updateInterval = 60000; // 1 minute
 
   const fetchWeatherData = useCallback(debounce(async () => {
     const apiKey = '763df8089caadc2bb3a7a2b6ec384a79'; // Replace with your OpenWeatherMap API key
@@ -32,7 +33,14 @@ const BarChart = () => {
   }, 300), []);
 
   useEffect(() => {
+    setData([]); // Reset data when cities change
     fetchWeatherData();
+
+    const interval = setInterval(() => {
+      fetchWeatherData();
+    }, updateInterval);
+
+    return () => clearInterval(interval); // Cleanup on unmount
   }, [fetchWeatherData]);
 
   useEffect(() => {
@@ -137,15 +145,6 @@ const BarChart = () => {
 
   return (
     <div className="container mx-auto p-4">
-      <div className="flex justify-between items-center mb-4">
-        <h1 className="text-2xl font-bold">Weather Data Visualization</h1>
-        <button
-          onClick={fetchWeatherData}
-          className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
-        >
-          Refresh Data
-        </button>
-      </div>
       {loading && (
         <div className="flex items-center justify-center h-64">
           <div className="loader ease-linear rounded-full border-4 border-t-4 border-gray-200 h-12 w-12"></div>
