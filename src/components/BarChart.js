@@ -11,9 +11,10 @@ const BarChart = () => {
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(false);
   const svgRef = useRef();
+  const containerRef = useRef();
 
   const fetchWeatherData = useCallback(debounce(async (cities) => {
-    const apiKey = '763df8089caadc2bb3a7a2b6ec384a79'; 
+    const apiKey = '763df8089caadc2bb3a7a2b6ec384a79'; // Replace with your OpenWeatherMap API key
     setLoading(true);
     setError(null);
     try {
@@ -43,8 +44,9 @@ const BarChart = () => {
   useEffect(() => {
     if (data.length === 0) return;
 
+    const containerWidth = containerRef.current.clientWidth;
     const svg = d3.select(svgRef.current)
-      .attr('width', '100%')
+      .attr('width', containerWidth)
       .attr('height', 500)
       .classed('border border-gray-300', true)
       .call(d3.zoom().on('zoom', (event) => {
@@ -53,7 +55,7 @@ const BarChart = () => {
 
     const xScale = d3.scaleBand()
       .domain(data.map(d => d.name))
-      .range([0, svg.node().clientWidth])
+      .range([0, containerWidth])
       .padding(0.1);
 
     const yScale = d3.scaleLinear()
@@ -122,7 +124,7 @@ const BarChart = () => {
   };
 
   return (
-    <div className="container mx-auto p-4">
+    <div className="container mx-auto p-4" ref={containerRef}>
       <div className="my-4 grid grid-cols-1 md:grid-cols-2 gap-4">
         <div>
           <label className="block text-gray-700 mb-2">Select Dataset:</label>
