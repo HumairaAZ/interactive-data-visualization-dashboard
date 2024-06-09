@@ -8,9 +8,7 @@ const BarChart = () => {
   const [selectedCities, setSelectedCities] = useState([
     'London', 'New York', 'Tokyo', 'Paris', 'Berlin', 'Moscow', 'Sydney', 'Mumbai', 'Shanghai', 'Cairo'
   ]);
-  const [page, setPage] = useState(1);
   const svgRef = useRef();
-  const pageSize = 5;
 
   const fetchWeatherData = useCallback(debounce(async (cities) => {
     const apiKey = '763df8089caadc2bb3a7a2b6ec384a79'; // Replace with your OpenWeatherMap API key
@@ -25,7 +23,7 @@ const BarChart = () => {
                    data.wind.speed
           }))
       ));
-      setData(prevData => [...prevData, ...results]);
+      setData(results);
     } catch (error) {
       console.error('There was a problem with the fetch operation:', error);
     }
@@ -33,8 +31,7 @@ const BarChart = () => {
 
   useEffect(() => {
     setData([]); // Reset data when dataset or cities change
-    fetchWeatherData(selectedCities.slice(0, pageSize));
-    setPage(1); // Reset to first page
+    fetchWeatherData(selectedCities);
   }, [dataset, selectedCities, fetchWeatherData]);
 
   useEffect(() => {
@@ -118,13 +115,6 @@ const BarChart = () => {
     setSelectedCities(selectedOptions);
   };
 
-  const loadMoreData = () => {
-    const nextPage = page + 1;
-    const nextCities = selectedCities.slice((nextPage - 1) * pageSize, nextPage * pageSize);
-    fetchWeatherData(nextCities);
-    setPage(nextPage);
-  };
-
   return (
     <div className="container mx-auto">
       <div className="my-4 flex flex-col md:flex-row justify-between items-center">
@@ -164,12 +154,6 @@ const BarChart = () => {
         </div>
       </div>
       <svg ref={svgRef}></svg>
-      <button
-        onClick={loadMoreData}
-        className="mt-4 p-2 bg-blue-500 text-white rounded hover:bg-blue-700"
-      >
-        Load More Data
-      </button>
     </div>
   );
 };
