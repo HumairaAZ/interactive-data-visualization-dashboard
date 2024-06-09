@@ -8,15 +8,10 @@ const BarChart = () => {
   const [selectedCities, setSelectedCities] = useState([
     'London', 'New York', 'Tokyo', 'Paris', 'Berlin', 'Moscow', 'Sydney', 'Mumbai', 'Shanghai', 'Cairo'
   ]);
-  const [error, setError] = useState(null);
-  const [loading, setLoading] = useState(false);
   const svgRef = useRef();
-  const containerRef = useRef();
 
   const fetchWeatherData = useCallback(debounce(async (cities) => {
     const apiKey = '763df8089caadc2bb3a7a2b6ec384a79'; // Replace with your OpenWeatherMap API key
-    setLoading(true);
-    setError(null);
     try {
       const results = await Promise.all(cities.map(city =>
         fetch(`https://api.openweathermap.org/data/2.5/weather?q=${city}&appid=${apiKey}&units=metric`)
@@ -29,10 +24,8 @@ const BarChart = () => {
           }))
       ));
       setData(results);
-      setLoading(false);
     } catch (error) {
-      setLoading(false);
-      setError('Failed to fetch data. Please try again later.');
+      console.error('There was a problem with the fetch operation:', error);
     }
   }, 300), [dataset]);
 
@@ -44,9 +37,8 @@ const BarChart = () => {
   useEffect(() => {
     if (data.length === 0) return;
 
-    const containerWidth = containerRef.current.clientWidth;
     const svg = d3.select(svgRef.current)
-      .attr('width', containerWidth)
+      .attr('width', 800)
       .attr('height', 500)
       .classed('border border-gray-300', true)
       .call(d3.zoom().on('zoom', (event) => {
@@ -55,7 +47,7 @@ const BarChart = () => {
 
     const xScale = d3.scaleBand()
       .domain(data.map(d => d.name))
-      .range([0, containerWidth])
+      .range([0, 800])
       .padding(0.1);
 
     const yScale = d3.scaleLinear()
@@ -124,7 +116,7 @@ const BarChart = () => {
   };
 
   return (
-    <div className="container mx-auto p-4" ref={containerRef}>
+    <div className="container mx-auto p-4">
       <div className="my-4 grid grid-cols-1 md:grid-cols-2 gap-4">
         <div>
           <label className="block text-gray-700 mb-2">Select Dataset:</label>
@@ -159,13 +151,7 @@ const BarChart = () => {
           </select>
         </div>
       </div>
-      {loading ? (
-        <div className="text-center">Loading data...</div>
-      ) : error ? (
-        <div className="text-center text-red-500">{error}</div>
-      ) : (
-        <svg ref={svgRef} className="w-full"></svg>
-      )}
+      <svg ref={svgRef}></svg>
     </div>
   );
 };
