@@ -48,23 +48,48 @@ const BarChart = () => {
       .domain([0, d3.max(data, d => d.temperature)])
       .range([500, 0]);
 
+    // Tooltip div
+    const tooltip = d3.select("body").append("div")
+      .attr("class", "tooltip")
+      .style("opacity", 0)
+      .style("position", "absolute")
+      .style("background-color", "white")
+      .style("border", "solid")
+      .style("border-width", "1px")
+      .style("border-radius", "5px")
+      .style("padding", "10px");
+
     svg.selectAll('rect')
       .data(data)
       .enter()
       .append('rect')
       .attr('x', d => xScale(d.name))
-      .attr('y', d => yScale(d.temperature))
+      .attr('y', d => yScale(0))
       .attr('width', xScale.bandwidth())
-      .attr('height', d => 500 - yScale(d.temperature))
+      .attr('height', 0)
       .attr('fill', 'blue')
       .on('mouseover', (event, d) => {
-        d3.select(event.currentTarget)
-          .attr('fill', 'orange');
+        tooltip.transition()
+          .duration(200)
+          .style('opacity', .9);
+        tooltip.html(`City: ${d.name}<br>Temperature: ${d.temperature}°C`)
+          .style('left', (event.pageX + 5) + 'px')
+          .style('top', (event.pageY - 28) + 'px');
+        d3.select(event.currentTarget).transition().duration(200).attr('fill', 'orange');
       })
       .on('mouseout', (event, d) => {
-        d3.select(event.currentTarget)
-          .attr('fill', 'blue');
+        tooltip.transition()
+          .duration(500)
+          .style('opacity', 0);
+        d3.select(event.currentTarget).transition().duration(500).attr('fill', 'blue');
       });
+
+    svg.selectAll('rect')
+      .transition()
+      .duration(800)
+      .attr('y', d => yScale(d.temperature))
+      .attr('height', d => 500 - yScale(d.temperature))
+      .delay((d, i) => i * 100);
 
     svg.append('g')
       .attr('transform', 'translate(0,0)')
