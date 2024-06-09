@@ -11,7 +11,7 @@ const BarChart = () => {
   const svgRef = useRef();
 
   const fetchWeatherData = useCallback(debounce(async (cities) => {
-    const apiKey = '763df8089caadc2bb3a7a2b6ec384a79'; // Replace with your OpenWeatherMap API key
+    const apiKey = 'YOUR_OPENWEATHERMAP_API_KEY'; // Replace with your OpenWeatherMap API key
     try {
       const results = await Promise.all(cities.map(city =>
         fetch(`https://api.openweathermap.org/data/2.5/weather?q=${city}&appid=${apiKey}&units=metric`)
@@ -38,8 +38,8 @@ const BarChart = () => {
     if (data.length === 0) return;
 
     const svg = d3.select(svgRef.current)
-      .attr('width', 800)
-      .attr('height', 500)
+      .attr('width', '100%')
+      .attr('height', '500')
       .classed('border border-gray-300', true)
       .call(d3.zoom().on('zoom', (event) => {
         svg.attr('transform', event.transform);
@@ -151,7 +151,7 @@ const BarChart = () => {
           </select>
         </div>
       </div>
-      <svg ref={svgRef}></svg>
+      <svg ref={svgRef} className="w-full"></svg>
     </div>
   );
 };
