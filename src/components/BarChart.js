@@ -5,7 +5,7 @@ import debounce from 'lodash.debounce';
 const BarChart = () => {
   const [data, setData] = useState([]);
   const dataset = 'temperature';
-  const cities = ['London', 'New York', 'Tokyo', 'Paris', 'Berlin', 'Moscow', 'Sydney', 'Mumbai', 'Shanghai', 'Cairo', 'Dubai', 'Beijing', 'Los Angeles', 'Chicago', 'Houston', 'Toronto', 'Rome', 'Madrid', 'Barcelona', 'Vienna'];
+  const cities = ['London', 'New York', 'Tokyo', 'Paris', 'Berlin', 'Moscow', 'Sydney', 'Mumbai', 'Shanghai', 'Cairo', 'Dubai'];
   const svgRef = useRef();
 
   const fetchWeatherData = useCallback(debounce(async () => {
