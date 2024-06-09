@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState, useCallback } from 'react';
 import * as d3 from 'd3';
-import Loading from 'react-loading';
+import debounce from 'lodash.debounce';
 
 const BarChart = () => {
   const [data, setData] = useState([]);
@@ -8,14 +8,14 @@ const BarChart = () => {
   const [selectedCities, setSelectedCities] = useState([
     'London', 'New York', 'Tokyo', 'Paris', 'Berlin', 'Moscow', 'Sydney', 'Mumbai', 'Shanghai', 'Cairo'
   ]);
-  const [loading, setLoading] = useState(false);
+  const [page, setPage] = useState(1);
   const svgRef = useRef();
+  const pageSize = 5;
 
-  const fetchWeatherData = useCallback(async () => {
-    const apiKey = 'YOUR_OPENWEATHERMAP_API_KEY'; // Replace with your OpenWeatherMap API key
-    setLoading(true);
+  const fetchWeatherData = useCallback(debounce(async (cities) => {
+    const apiKey = '763df8089caadc2bb3a7a2b6ec384a79'; // Replace with your OpenWeatherMap API key
     try {
-      const results = await Promise.all(selectedCities.map(city =>
+      const results = await Promise.all(cities.map(city =>
         fetch(`https://api.openweathermap.org/data/2.5/weather?q=${city}&appid=${apiKey}&units=metric`)
           .then(response => response.json())
           .then(data => ({
@@ -25,17 +25,16 @@ const BarChart = () => {
                    data.wind.speed
           }))
       ));
-      setData(results);
+      setData(prevData => [...prevData, ...results]);
     } catch (error) {
       console.error('There was a problem with the fetch operation:', error);
-      alert('Failed to fetch data. Please try again later.');
-    } finally {
-      setLoading(false);
     }
-  }, [dataset, selectedCities]);
+  }, 300), [dataset]);
 
   useEffect(() => {
-    fetchWeatherData();
+    setData([]); // Reset data when dataset or cities change
+    fetchWeatherData(selectedCities.slice(0, pageSize));
+    setPage(1); // Reset to first page
   }, [dataset, selectedCities, fetchWeatherData]);
 
   useEffect(() => {
@@ -44,7 +43,10 @@ const BarChart = () => {
     const svg = d3.select(svgRef.current)
       .attr('width', 800)
       .attr('height', 500)
-      .classed('border border-gray-300', true);
+      .classed('border border-gray-300', true)
+      .call(d3.zoom().on('zoom', (event) => {
+        svg.attr('transform', event.transform);
+      }));
 
     const xScale = d3.scaleBand()
       .domain(data.map(d => d.name))
@@ -60,16 +62,14 @@ const BarChart = () => {
       .style("opacity", 0)
       .style("position", "absolute");
 
-    svg.selectAll('rect').remove();
-
     svg.selectAll('rect')
       .data(data)
       .enter()
       .append('rect')
       .attr('x', d => xScale(d.name))
-      .attr('y', d => yScale(d.value))
+      .attr('y', d => yScale(0))
       .attr('width', xScale.bandwidth())
-      .attr('height', d => 500 - yScale(d.value))
+      .attr('height', 0)
       .attr('fill', 'blue')
       .on('mouseover', (event, d) => {
         tooltip.transition()
@@ -87,7 +87,12 @@ const BarChart = () => {
         d3.select(event.currentTarget).transition().duration(500).attr('fill', 'blue');
       });
 
-    svg.selectAll('g').remove();
+    svg.selectAll('rect')
+      .transition()
+      .duration(800)
+      .attr('y', d => yScale(d.value))
+      .attr('height', d => 500 - yScale(d.value))
+      .delay((d, i) => i * 100);
 
     svg.append('g')
       .attr('transform', 'translate(0,0)')
@@ -111,6 +116,13 @@ const BarChart = () => {
   const handleCityChange = (e) => {
     const selectedOptions = Array.from(e.target.selectedOptions).map(option => option.value);
     setSelectedCities(selectedOptions);
+  };
+
+  const loadMoreData = () => {
+    const nextPage = page + 1;
+    const nextCities = selectedCities.slice((nextPage - 1) * pageSize, nextPage * pageSize);
+    fetchWeatherData(nextCities);
+    setPage(nextPage);
   };
 
   return (
@@ -151,13 +163,13 @@ const BarChart = () => {
           </label>
         </div>
       </div>
-      {loading ? (
-        <div className="flex justify-center items-center">
-          <Loading type="bubbles" color="#00BFFF" height={100} width={100} />
-        </div>
-      ) : (
-        <svg ref={svgRef}></svg>
-      )}
+      <svg ref={svgRef}></svg>
+      <button
+        onClick={loadMoreData}
+        className="mt-4 p-2 bg-blue-500 text-white rounded hover:bg-blue-700"
+      >
+        Load More Data
+      </button>
     </div>
   );
 };
