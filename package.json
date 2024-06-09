@@ -16,7 +16,10 @@
     "react-scripts": "4.0.3",
     "d3": "^6.7.0",
     "d3-zoom": "^2.0.0",
-    "socket.io-client": "^4.4.0"
+    "socket.io-client": "^4.4.0",
+    "lodash.debounce": "^4.0.8",
+    "react-loading": "^2.0.3"
+
   },
   "devDependencies": {
     "gh-pages": "^3.2.3",
