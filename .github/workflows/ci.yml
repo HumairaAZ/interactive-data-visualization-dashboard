@@ -29,3 +29,9 @@ jobs:
 
     - name: Run tests
       run: npm test
+
+    - name: Deploy to GitHub Pages
+      if: success()
+      run: npm run deploy
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
