@@ -6,16 +6,19 @@ const BarChart = () => {
   const [data, setData] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const dataset = 'temperature';
-  const cities = ['London', 'New York', 'Tokyo', 'Paris', 'Berlin', 'Moscow', 'Sydney', 'Mumbai', 'Shanghai', 'Cairo'];
+  const [dataset, setDataset] = useState('temperature');
+  const [selectedCities, setSelectedCities] = useState([
+    'London', 'New York', 'Tokyo', 'Paris', 'Berlin', 'Moscow', 'Sydney', 'Mumbai', 'Shanghai', 'Cairo'
+  ]);
+  const allCities = ['London', 'New York', 'Tokyo', 'Paris', 'Berlin', 'Moscow', 'Sydney', 'Mumbai', 'Shanghai', 'Cairo'];
   const svgRef = useRef();
 
   const fetchWeatherData = useCallback(debounce(async () => {
-    const apiKey = '763df8089caadc2bb3a7a2b6ec384a79'; 
+    const apiKey = '763df8089caadc2bb3a7a2b6ec384a79'; // Replace with your OpenWeatherMap API key
     setLoading(true);
     setError(null);
     try {
-      const results = await Promise.all(cities.map(city =>
+      const results = await Promise.all(selectedCities.map(city =>
         fetch(`https://api.openweathermap.org/data/2.5/weather?q=${city}&appid=${apiKey}&units=metric`)
           .then(response => response.json())
           .then(data => ({
@@ -32,7 +35,7 @@ const BarChart = () => {
     } finally {
       setLoading(false);
     }
-  }, 300), []);
+  }, 300), [dataset, selectedCities]);
 
   useEffect(() => {
     fetchWeatherData();
@@ -141,10 +144,47 @@ const BarChart = () => {
       .attr("stop-color", "#6574cd")
       .attr("stop-opacity", 1);
 
-  }, [data, loading, error]);
+  }, [data, loading, error, dataset]);
+
+  const handleDatasetChange = (e) => {
+    setDataset(e.target.value);
+  };
+
+  const handleCityChange = (e) => {
+    const selectedOptions = Array.from(e.target.selectedOptions).map(option => option.value);
+    setSelectedCities(selectedOptions);
+  };
 
   return (
     <div className="container mx-auto p-4">
+      <div className="my-4 grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div>
+          <label className="block text-gray-700 mb-2">Select Dataset:</label>
+          <select
+            value={dataset}
+            onChange={handleDatasetChange}
+            className="w-full p-2 border border-gray-300 rounded"
+          >
+            <option value="temperature">Temperature</option>
+            <option value="humidity">Humidity</option>
+            <option value="windSpeed">Wind Speed</option>
+          </select>
+        </div>
+        <div>
+          <label className="block text-gray-700 mb-2">Select Cities:</label>
+          <select
+            multiple
+            value={selectedCities}
+            onChange={handleCityChange}
+            className="w-full p-2 border border-gray-300 rounded"
+            style={{ height: '150px' }}
+          >
+            {allCities.map(city => (
+              <option key={city} value={city}>{city}</option>
+            ))}
+          </select>
+        </div>
+      </div>
       {loading && <div className="text-center">Loading...</div>}
       {error && <div className="text-center text-red-500">{error}</div>}
       <svg ref={svgRef} className="w-full"></svg>
