@@ -11,7 +11,7 @@ const BarChart = () => {
   const svgRef = useRef();
 
   const fetchWeatherData = useCallback(debounce(async () => {
-    const apiKey = '763df8089caadc2bb3a7a2b6ec384a79'; // Replace with your OpenWeatherMap API key
+    const apiKey = 'YOUR_OPENWEATHERMAP_API_KEY'; // Replace with your OpenWeatherMap API key
     setLoading(true);
     setError(null);
     try {
@@ -64,7 +64,12 @@ const BarChart = () => {
     const tooltip = d3.select("body").append("div")
       .attr("class", "tooltip")
       .style("opacity", 0)
-      .style("position", "absolute");
+      .style("position", "absolute")
+      .style("background-color", "white")
+      .style("border", "1px solid #ccc")
+      .style("padding", "10px")
+      .style("border-radius", "4px")
+      .style("box-shadow", "0px 0px 10px rgba(0, 0, 0, 0.1)");
 
     svg.selectAll('rect')
       .data(data)
