@@ -4,12 +4,16 @@ import debounce from 'lodash.debounce';
 
 const BarChart = () => {
   const [data, setData] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
   const dataset = 'temperature';
-  const cities = ['London', 'New York', 'Tokyo', 'Paris', 'Berlin', 'Moscow', 'Sydney', 'Mumbai', 'Shanghai', 'Cairo'].slice(0, 10);
+  const cities = ['London', 'New York', 'Tokyo', 'Paris', 'Berlin', 'Moscow', 'Sydney', 'Mumbai', 'Shanghai', 'Cairo'];
   const svgRef = useRef();
 
   const fetchWeatherData = useCallback(debounce(async () => {
     const apiKey = '763df8089caadc2bb3a7a2b6ec384a79'; // Replace with your OpenWeatherMap API key
+    setLoading(true);
+    setError(null);
     try {
       const results = await Promise.all(cities.map(city =>
         fetch(`https://api.openweathermap.org/data/2.5/weather?q=${city}&appid=${apiKey}&units=metric`)
@@ -24,16 +28,18 @@ const BarChart = () => {
       setData(results);
     } catch (error) {
       console.error('There was a problem with the fetch operation:', error);
+      setError('Failed to fetch data');
+    } finally {
+      setLoading(false);
     }
   }, 300), []);
 
   useEffect(() => {
-    setData([]); // Reset data when cities change
     fetchWeatherData();
   }, [fetchWeatherData]);
 
   useEffect(() => {
-    if (data.length === 0) return;
+    if (data.length === 0 || loading || error) return;
 
     const width = svgRef.current.clientWidth;
     const height = 500;
@@ -130,10 +136,12 @@ const BarChart = () => {
       .attr("stop-color", "#6574cd")
       .attr("stop-opacity", 1);
 
-  }, [data]);
+  }, [data, loading, error]);
 
   return (
     <div className="container mx-auto p-4">
+      {loading && <div className="text-center">Loading...</div>}
+      {error && <div className="text-center text-red-500">{error}</div>}
       <svg ref={svgRef} className="w-full"></svg>
     </div>
   );
