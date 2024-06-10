@@ -12,7 +12,7 @@ const BarChart = () => {
   const svgRef = useRef();
 
   const fetchWeatherData = useCallback(debounce(async () => {
-    const apiKey = '763df8089caadc2bb3a7a2b6ec384a79'; // Replace with your OpenWeatherMap API key
+    const apiKey = '763df8089caadc2bb3a7a2b6ec384a79';
     setLoading(true);
     setError(null);
     try {
@@ -55,7 +55,7 @@ const BarChart = () => {
     const svg = d3.select(svgRef.current)
       .attr('width', width)
       .attr('height', height)
-      .classed('border border-gray-300 rounded-lg shadow-lg', true)
+      .classed('border border-gray-200 rounded-lg shadow-lg', true)
       .call(d3.zoom().on('zoom', (event) => {
         svg.attr('transform', event.transform);
       }));
@@ -70,7 +70,7 @@ const BarChart = () => {
       .range([height, 0]);
 
     const tooltip = d3.select("body").append("div")
-      .attr("class", "tooltip bg-white border border-gray-300 p-2 rounded shadow-lg")
+      .attr("class", "tooltip bg-white border border-gray-300 p-2 rounded shadow-lg text-gray-800 text-sm")
       .style("opacity", 0)
       .style("position", "absolute");
 
@@ -87,7 +87,7 @@ const BarChart = () => {
       .attr('stroke-width', 1)
       .attr('rx', 4)
       .attr('ry', 4)
-      .attr('class', 'shadow-md')
+      .attr('class', 'shadow-md hover:fill-current hover:text-yellow-500')
       .on('mouseover', (event, d) => {
         tooltip.transition()
           .duration(200)
@@ -113,7 +113,7 @@ const BarChart = () => {
 
     svg.append('g')
       .attr('transform', 'translate(0,0)')
-      .call(d3.axisLeft(yScale).ticks(5).tickSizeOuter(0));
+      .call(d3.axisLeft(yScale).ticks(5).tickSizeOuter(0).tickFormat(d => `${d}`));
 
     svg.append('g')
       .attr('transform', `translate(0,${height})`)
@@ -123,7 +123,8 @@ const BarChart = () => {
       .attr("x", 9)
       .attr("dy", ".35em")
       .attr("transform", "rotate(45)")
-      .style("text-anchor", "start");
+      .style("text-anchor", "start")
+      .style("font-size", "12px");
 
     // Append gradient definition
     const defs = svg.append("defs");
@@ -156,13 +157,13 @@ const BarChart = () => {
 
   return (
     <div className="container mx-auto p-4">
-      <div className="my-4 flex justify-between items-center">
+      <div className="my-4 flex justify-between items-center bg-white p-4 rounded-lg shadow-md">
         <div>
-          <label className="block text-gray-700 mb-2">Sort by:</label>
+          <label className="block text-gray-700 mb-2 font-semibold">Sort by:</label>
           <select
             value={sortType}
             onChange={handleSortChange}
-            className="p-2 border border-gray-300 rounded"
+            className="p-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
           >
             <option value="default">Default</option>
             <option value="asc">Ascending</option>
@@ -170,11 +171,11 @@ const BarChart = () => {
           </select>
         </div>
         <div>
-          <label className="block text-gray-700 mb-2">Filter by:</label>
+          <label className="block text-gray-700 mb-2 font-semibold">Filter by:</label>
           <select
             value={filterType}
             onChange={handleFilterChange}
-            className="p-2 border border-gray-300 rounded"
+            className="p-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
           >
             <option value="temperature">Temperature</option>
             <option value="humidity">Humidity</option>
@@ -182,7 +183,7 @@ const BarChart = () => {
           </select>
         </div>
       </div>
-      {loading && <div className="text-center">Loading...</div>}
+      {loading && <div className="text-center text-gray-700">Loading...</div>}
       {error && <div className="text-center text-red-500">{error}</div>}
       <svg ref={svgRef} className="w-full"></svg>
     </div>
