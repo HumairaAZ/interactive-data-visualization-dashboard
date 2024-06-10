@@ -6,26 +6,24 @@ const BarChart = () => {
   const [data, setData] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [dataset, setDataset] = useState('temperature');
-  const [selectedCities, setSelectedCities] = useState([
-    'London', 'New York', 'Tokyo', 'Paris', 'Berlin', 'Moscow', 'Sydney', 'Mumbai', 'Shanghai', 'Cairo'
-  ]);
-  const allCities = ['London', 'New York', 'Tokyo', 'Paris', 'Berlin', 'Moscow', 'Sydney', 'Mumbai', 'Shanghai', 'Cairo'];
+  const [sortType, setSortType] = useState('default');
+  const [filterType, setFilterType] = useState('temperature');
+  const cities = ['London', 'New York', 'Tokyo', 'Paris', 'Berlin', 'Moscow', 'Sydney', 'Mumbai', 'Shanghai', 'Cairo'];
   const svgRef = useRef();
 
   const fetchWeatherData = useCallback(debounce(async () => {
-    const apiKey = '763df8089caadc2bb3a7a2b6ec384a79'; // Replace with your OpenWeatherMap API key
+    const apiKey = '763df8089caadc2bb3a7a2b6ec384a79'; 
     setLoading(true);
     setError(null);
     try {
-      const results = await Promise.all(selectedCities.map(city =>
+      const results = await Promise.all(cities.map(city =>
         fetch(`https://api.openweathermap.org/data/2.5/weather?q=${city}&appid=${apiKey}&units=metric`)
           .then(response => response.json())
           .then(data => ({
             name: data.name,
-            value: dataset === 'temperature' ? data.main.temp :
-                   dataset === 'humidity' ? data.main.humidity :
-                   data.wind.speed
+            temperature: data.main.temp,
+            humidity: data.main.humidity,
+            windSpeed: data.wind.speed
           }))
       ));
       setData(results);
@@ -35,7 +33,7 @@ const BarChart = () => {
     } finally {
       setLoading(false);
     }
-  }, 300), [dataset, selectedCities]);
+  }, 300), []);
 
   useEffect(() => {
     fetchWeatherData();
@@ -43,6 +41,13 @@ const BarChart = () => {
 
   useEffect(() => {
     if (data.length === 0 || loading || error) return;
+
+    const sortedData = [...data];
+    if (sortType === 'asc') {
+      sortedData.sort((a, b) => a[filterType] - b[filterType]);
+    } else if (sortType === 'desc') {
+      sortedData.sort((a, b) => b[filterType] - a[filterType]);
+    }
 
     const width = svgRef.current.clientWidth;
     const height = 500;
@@ -56,12 +61,12 @@ const BarChart = () => {
       }));
 
     const xScale = d3.scaleBand()
-      .domain(data.map(d => d.name))
+      .domain(sortedData.map(d => d.name))
       .range([0, width])
       .padding(0.1);
 
     const yScale = d3.scaleLinear()
-      .domain([0, d3.max(data, d => d.value)])
+      .domain([0, d3.max(sortedData, d => d[filterType])])
       .range([height, 0]);
 
     const tooltip = d3.select("body").append("div")
@@ -75,7 +80,7 @@ const BarChart = () => {
       .style("box-shadow", "0px 0px 10px rgba(0, 0, 0, 0.1)");
 
     svg.selectAll('rect')
-      .data(data)
+      .data(sortedData)
       .enter()
       .append('rect')
       .attr('x', d => xScale(d.name))
@@ -92,7 +97,7 @@ const BarChart = () => {
         tooltip.transition()
           .duration(200)
           .style('opacity', .9);
-        tooltip.html(`City: ${d.name}<br>${dataset.charAt(0).toUpperCase() + dataset.slice(1)}: ${d.value}`)
+        tooltip.html(`City: ${d.name}<br>${filterType.charAt(0).toUpperCase() + filterType.slice(1)}: ${d[filterType]}`)
           .style('left', `${Math.min(event.pageX + 10, window.innerWidth - 150)}px`)
           .style('top', `${event.pageY - 28}px`);
         d3.select(event.currentTarget).transition().duration(200).attr('fill', '#ffed4a');
@@ -107,8 +112,8 @@ const BarChart = () => {
     svg.selectAll('rect')
       .transition()
       .duration(800)
-      .attr('y', d => yScale(d.value))
-      .attr('height', d => height - yScale(d.value))
+      .attr('y', d => yScale(d[filterType]))
+      .attr('height', d => height - yScale(d[filterType]))
       .delay((d, i) => i * 100);
 
     svg.append('g')
@@ -144,44 +149,41 @@ const BarChart = () => {
       .attr("stop-color", "#6574cd")
       .attr("stop-opacity", 1);
 
-  }, [data, loading, error, dataset]);
+  }, [data, loading, error, sortType, filterType]);
 
-  const handleDatasetChange = (e) => {
-    setDataset(e.target.value);
+  const handleSortChange = (e) => {
+    setSortType(e.target.value);
   };
 
-  const handleCityChange = (e) => {
-    const selectedOptions = Array.from(e.target.selectedOptions).map(option => option.value);
-    setSelectedCities(selectedOptions);
+  const handleFilterChange = (e) => {
+    setFilterType(e.target.value);
   };
 
   return (
     <div className="container mx-auto p-4">
-      <div className="my-4 grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div className="my-4 flex justify-between">
         <div>
-          <label className="block text-gray-700 mb-2">Select Dataset:</label>
+          <label className="block text-gray-700 mb-2">Sort by:</label>
           <select
-            value={dataset}
-            onChange={handleDatasetChange}
-            className="w-full p-2 border border-gray-300 rounded"
+            value={sortType}
+            onChange={handleSortChange}
+            className="p-2 border border-gray-300 rounded"
+          >
+            <option value="default">Default</option>
+            <option value="asc">Ascending</option>
+            <option value="desc">Descending</option>
+          </select>
+        </div>
+        <div>
+          <label className="block text-gray-700 mb-2">Filter by:</label>
+          <select
+            value={filterType}
+            onChange={handleFilterChange}
+            className="p-2 border border-gray-300 rounded"
           >
             <option value="temperature">Temperature</option>
             <option value="humidity">Humidity</option>
             <option value="windSpeed">Wind Speed</option>
-          </select>
-        </div>
-        <div>
-          <label className="block text-gray-700 mb-2">Select Cities:</label>
-          <select
-            multiple
-            value={selectedCities}
-            onChange={handleCityChange}
-            className="w-full p-2 border border-gray-300 rounded"
-            style={{ height: '150px' }}
-          >
-            {allCities.map(city => (
-              <option key={city} value={city}>{city}</option>
-            ))}
           </select>
         </div>
       </div>
