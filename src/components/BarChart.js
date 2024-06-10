@@ -12,7 +12,7 @@ const BarChart = () => {
   const svgRef = useRef();
 
   const fetchWeatherData = useCallback(debounce(async () => {
-    const apiKey = '763df8089caadc2bb3a7a2b6ec384a79'; 
+    const apiKey = 'YOUR_OPENWEATHERMAP_API_KEY'; // Replace with your OpenWeatherMap API key
     setLoading(true);
     setError(null);
     try {
@@ -55,7 +55,7 @@ const BarChart = () => {
     const svg = d3.select(svgRef.current)
       .attr('width', width)
       .attr('height', height)
-      .classed('border border-gray-300', true)
+      .classed('border border-gray-300 rounded-lg shadow-lg', true)
       .call(d3.zoom().on('zoom', (event) => {
         svg.attr('transform', event.transform);
       }));
@@ -70,14 +70,9 @@ const BarChart = () => {
       .range([height, 0]);
 
     const tooltip = d3.select("body").append("div")
-      .attr("class", "tooltip")
+      .attr("class", "tooltip bg-white border border-gray-300 p-2 rounded shadow-lg")
       .style("opacity", 0)
-      .style("position", "absolute")
-      .style("background-color", "white")
-      .style("border", "1px solid #ccc")
-      .style("padding", "10px")
-      .style("border-radius", "4px")
-      .style("box-shadow", "0px 0px 10px rgba(0, 0, 0, 0.1)");
+      .style("position", "absolute");
 
     svg.selectAll('rect')
       .data(sortedData)
@@ -118,11 +113,11 @@ const BarChart = () => {
 
     svg.append('g')
       .attr('transform', 'translate(0,0)')
-      .call(d3.axisLeft(yScale));
+      .call(d3.axisLeft(yScale).ticks(5).tickSizeOuter(0));
 
     svg.append('g')
       .attr('transform', `translate(0,${height})`)
-      .call(d3.axisBottom(xScale))
+      .call(d3.axisBottom(xScale).tickSizeOuter(0))
       .selectAll("text")
       .attr("y", 0)
       .attr("x", 9)
@@ -161,7 +156,7 @@ const BarChart = () => {
 
   return (
     <div className="container mx-auto p-4">
-      <div className="my-4 flex justify-between">
+      <div className="my-4 flex justify-between items-center">
         <div>
           <label className="block text-gray-700 mb-2">Sort by:</label>
           <select
